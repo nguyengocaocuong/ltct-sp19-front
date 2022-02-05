@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Badge from '../components/badge/Badge'
 import CodeModal from '../components/code-modal/CodeModal'
 import Table from '../components/table/Table'
-import { getData } from '../utils/feathData'
+import { deleteData, getData } from '../utils/feathData'
 const promotionTableHead = [
     "",
     "Name",
@@ -11,28 +11,6 @@ const promotionTableHead = [
     "ApplyProductId",
     "IsActived"
 ]
-// const promotionListBody = [
-//     {
-//         id: "61ecb93e753b99e106a1f479",
-//         name: "promotion 2",
-//         description: "description 1",
-//         discountType: 1,
-//         discountValue: 20,
-//         applyProductType: 1,
-//         applyProductId: [1, 2, 3, 4, 5],
-//         isActived: false,
-//     },
-//     {
-//         id: "61ecb93e753b99e106a1f4423",
-//         name: "promotion 3",
-//         description: "description 1",
-//         discountType: 2,
-//         discountValue: 50000,
-//         applyProductType: 1,
-//         applyProductId: [1, 2, 3, 4, 5],
-//         isActived: true,
-//     }
-// ]
 const renderHead = (item, index) => <th key={index}>{item}</th>
 
 export const Promotion = () => {
@@ -42,9 +20,9 @@ export const Promotion = () => {
 
     const handleChange = (id) => {
         let firstLen = listSelected.length
-        listSelected = listSelected.filter(function (value) {
-            return value !== id
-        })
+        for (let i = 0; i < listSelected.length; i++)
+            if (listSelected[i] === id)
+                listSelected.splice(i, 1)
         if (listSelected.length === firstLen)
             listSelected.push(id)
         setDisplay(listSelected.length === 0 ? false : true)
@@ -57,9 +35,12 @@ export const Promotion = () => {
             console.log(err);
         }
     }
+    const deletePromotion = () => {
+        deleteData('sale/promotion/admin/destroy', { promotionIds: listSelected })
+    }
 
-    useEffect(async () => {
-        await getPromotionList()
+    useEffect(() => {
+        getPromotionList()
     }, []);
     const renderBody = (item, index) => (
         <tr key={index}>
@@ -78,9 +59,7 @@ export const Promotion = () => {
                 {
                     isDisplay ? (
                         <div className='action'>
-                            <button>Delete</button>
-                            <button>Active</button>
-                            <button>Hidden</button>
+                            <button onClick={deletePromotion}>Delete</button>
                         </div>
                     ) : ''
                 }

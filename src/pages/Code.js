@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Badge from '../components/badge/Badge'
 import CodeModal from '../components/code-modal/CodeModal'
 import Table from '../components/table/Table'
-import { getData } from '../utils/feathData'
+import { deleteData, getData } from '../utils/feathData'
 
 const codeTableHead = [
     "",
@@ -16,7 +16,6 @@ const codeTableHead = [
     "IsActived"
 ]
 const renderHead = (item, index) => <th key={index}>{item}</th>
-
 
 
 export const Code = () => {
@@ -35,14 +34,20 @@ export const Code = () => {
         }
     }
 
-    useEffect(async () => {
-        await getCodeList()
+    const deleteCode = () => {
+        deleteData('sale/code/admin/destroy', { codeIds: listSelected })
+    }
+
+    useEffect( () => {
+        getCodeList()
     }, [])
 
 
     const handleChange = (id) => {
         let firstLen = listSelected.length
-        listSelected = listSelected.filter((item) => item !== id)
+        for (let i = 0; i < listSelected.length; i++)
+            if (listSelected[i] === id)
+                listSelected.splice(i, 1)
         if (listSelected.length === firstLen)
             listSelected.push(id)
         setDisplay(listSelected.length === 0 ? false : true)
@@ -50,7 +55,7 @@ export const Code = () => {
 
     const renderBody = (item, index) => (
         <tr key={index}>
-            <td><input type="checkbox" onChange={(e) => handleChange(item.id)} /></td>
+            <td><input type="checkbox" onChange={(e) => handleChange(item._id)} /></td>
             <td>{item.name}</td>
             <td>{item.description}</td>
             <td>{item.count}</td>
@@ -68,9 +73,7 @@ export const Code = () => {
                 {
                     isDisplay ? (
                         <div className='action'>
-                            <button>Delete</button>
-                            <button>Active</button>
-                            <button>Hidden</button>
+                            <button onClick={deleteCode}>Delete</button>
                         </div>
                     ) : ''
                 }

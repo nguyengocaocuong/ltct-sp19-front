@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import Table from '../components/table/Table'
 import Badge from '../components/badge/Badge'
+import { getData } from '../utils/feathData'
 
 const codeTableHead = [
     "",
@@ -12,34 +13,7 @@ const codeTableHead = [
     "Code",
     "IsActived"
 ]
-const codeListBody = [
-    {
-        id: "61ecb93e753b99e106a1f479",
-        name: "code 2",
-        description: "description 1",
-        count: 12,
-        discountType: 1,
-        discountValue: 50,
-        subConditions: 200000,
-        contditionType: 1,
-        contditionValue: 0,
-        discountCode: 'discountCode35577',
-        isActived: false,
-    },
-    {
-        id: "61ecb93e753b99e106a1f479",
-        name: "code 3",
-        description: "description 1",
-        count: 12,
-        discountType: 2,
-        discountValue: 50000,
-        subConditions: 200000,
-        contditionType: 1,
-        contditionValue: 0,
-        discountCode: 'discountCode35577',
-        isActived: true,
-    }
-]
+
 const promotionTableHead = [
     "",
     "Name",
@@ -47,34 +21,13 @@ const promotionTableHead = [
     "ApplyProductId",
     "IsActived"
 ]
-const promotionListBody = [
-    {
-        id: "61ecb93e753b99e106a1f479",
-        name: "promotion 2",
-        description: "description 1",
-        discountType: 1,
-        discountValue: 20,
-        applyProductType: 1,
-        applyProductId: [1, 2, 3, 4, 5],
-        isActived: false,
-    },
-    {
-        id: "61ecb93e753b99e106a1f4423",
-        name: "promotion 3",
-        description: "description 1",
-        discountType: 2,
-        discountValue: 50000,
-        applyProductType: 1,
-        isActived: true,
-    }
-]
+
 const renderHead = (item, index) => <th key={index}>{item}</th>
-
-
-
 
 export const Trash = () => {
     const [isCode, setIsCode] = useState(true)
+    const [codeListBody,setCodeListBody]  = useState([])
+    const [promotionListBody,setPromotionListBody]  = useState([])
     let listCodeSelected = []
     let listPromotionSelected = []
 
@@ -117,6 +70,22 @@ export const Trash = () => {
             <td>{item.isActived ? <Badge type='success' content='Actived' /> : <Badge type='warning' content='Non Active' />}</td>
         </tr>
     )
+
+    const getDataTrtash = async () => {
+        try {
+            const resCode = await getData('sale/code/admin/trash')
+            const resPromotion = await getData('sale/promotion/admin/trash')
+            setCodeListBody(resCode.data)
+            setPromotionListBody(resPromotion.data)
+        }
+        catch (error) { 
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        getDataTrtash()
+    }, []);
+
     return (
         <div>
             <div className="top-header">
