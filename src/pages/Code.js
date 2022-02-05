@@ -35,7 +35,7 @@ export const Code = () => {
     }
 
     const deleteCode = () => {
-        deleteData('sale/code/admin/destroy', { codeIds: listSelected })
+        deleteData('sale/code/admin/delete', { codeIds: listSelected })
     }
 
     useEffect( () => {

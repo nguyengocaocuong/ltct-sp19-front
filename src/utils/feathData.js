@@ -37,8 +37,7 @@ export const patchData = async (url, post, token) => {
 };
 
 export const deleteData = async (url, dt) => {
-  console.log(dt);
-  const res = await axios.delete(`${apiUrl}/api/${url}`, JSON.stringify(dt));
+  const res = await axios.delete(`${apiUrl}/api/${url}`, dt);
   const data = await res.json();
   return data;
 };

@@ -36,7 +36,7 @@ export const Promotion = () => {
         }
     }
     const deletePromotion = () => {
-        deleteData('sale/promotion/admin/destroy', { promotionIds: listSelected })
+        deleteData('sale/promotion/admin/delete', { promotionIds: listSelected })
     }
 
     useEffect(() => {
