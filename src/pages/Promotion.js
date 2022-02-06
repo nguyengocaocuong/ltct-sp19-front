@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import { Bars } from 'react-loader-spinner'
+import { toast } from 'react-toastify'
 import Badge from '../components/badge/Badge'
-import CodeModal from '../components/code-modal/CodeModal'
 import Table from '../components/table/Table'
 import { deleteData, getData } from '../utils/feathData'
 const promotionTableHead = [
@@ -20,8 +21,8 @@ export const Promotion = () => {
 
     const handleChange = (id) => {
         let index = listSelected.indexOf(id)
-        if(index >= 0)
-            listSelected.splice(index,1)
+        if (index >= 0)
+            listSelected.splice(index, 1)
         else
             listSelected.push(id)
         setListSelected(listSelected)
@@ -36,7 +37,16 @@ export const Promotion = () => {
         }
     }
     const deletePromotion = () => {
-        deleteData('sale/promotion/admin/delete', { promotionIds: listSelected })
+        deleteData('sale/promotion/admin/delete', { promotionIds: listSelected }).then(
+            res => {
+                if (res.status === 200) {
+                    toast.success('Delete success Promotion')
+                    getPromotionList()
+                }
+                else
+                    toast.error("Can't delete Promotion")
+            }
+        )
     }
 
     useEffect(() => {
@@ -75,14 +85,11 @@ export const Promotion = () => {
                                     renderHead={(item, index) => renderHead(item, index)}
                                     bodyData={promotionListBody}
                                     renderBody={(item, index) => renderBody(item, index)}
-                                /> : ''
+                                /> : <Bars/>
                             }
                         </div>
                     </div>
                 </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <CodeModal />
             </div>
         </div>
     )

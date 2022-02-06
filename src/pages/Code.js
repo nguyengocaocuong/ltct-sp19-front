@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import { Bars } from 'react-loader-spinner'
+import { toast } from 'react-toastify'
 import Badge from '../components/badge/Badge'
-import CodeModal from '../components/code-modal/CodeModal'
 import Table from '../components/table/Table'
 import { deleteData, getData } from '../utils/feathData'
 
@@ -16,8 +17,6 @@ const codeTableHead = [
     "IsActived"
 ]
 const renderHead = (item, index) => <th key={index}>{item}</th>
-
-
 export const Code = () => {
     const [isDisplay, setDisplay] = useState(false)
     const [codeListBody, setCodeListBody] = useState([])
@@ -27,14 +26,22 @@ export const Code = () => {
         try {
             const codes = await getData('sale/code/admin')
             setCodeListBody(codes.data)
-            console.log(codes.data);
         } catch (err) {
             console.log(err)
         }
     }
 
     const deleteCode = () => {
-        deleteData('sale/code/admin/delete', { codeIds: listSelected })
+        deleteData('sale/code/admin/delete', { codeIds: listSelected }).then(
+            res => {
+                if (res.status === 200) {
+                    toast.success('Delete success Code')
+                    getCodeList()
+                }
+                else
+                    toast.error("Can't delete Code")
+            }
+        )
     }
 
     useEffect(() => {
@@ -44,8 +51,8 @@ export const Code = () => {
 
     const handleChange = (id) => {
         let index = listSelected.indexOf(id)
-        if(index >= 0)
-            listSelected.splice(index,1)
+        if (index >= 0)
+            listSelected.splice(index, 1)
         else
             listSelected.push(id)
         setListSelected(listSelected)
@@ -88,14 +95,11 @@ export const Code = () => {
                                     renderHead={(item, index) => renderHead(item, index)}
                                     bodyData={codeListBody}
                                     renderBody={(item, index) => renderBody(item, index)}
-                                /> : ''
+                                /> : <Bars/>
                             }
                         </div>
                     </div>
                 </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <CodeModal />
             </div>
         </div>
     )

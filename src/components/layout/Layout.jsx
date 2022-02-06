@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 
 import './layout.css'
 
@@ -11,6 +11,8 @@ import { BrowserRouter, Route } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
 import ThemeAction from '../../redux/actions/ThemeAction'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Layout = () => {
 
@@ -27,20 +29,30 @@ const Layout = () => {
 
         dispatch(ThemeAction.setColor(colorClass))
     }, [dispatch])
-
     return (
         <BrowserRouter>
             <Route render={(props) => (
                 <div className={`layout ${themeReducer.mode} ${themeReducer.color}`}>
-                    <Sidebar {...props}/>
+                    <ToastContainer
+                        position="bottom-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
+                    <Sidebar {...props} />
                     <div className="layout__content">
-                        <TopNav/>
+                        <TopNav />
                         <div className="layout__content-main">
-                            <Routes/>
+                            <Routes />
                         </div>
                     </div>
                 </div>
-            )}/>
+            )} />
         </BrowserRouter>
     )
 }

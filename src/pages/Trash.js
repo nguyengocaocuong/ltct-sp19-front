@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Table from '../components/table/Table'
 import Badge from '../components/badge/Badge'
 import { getData, patchData, deleteData } from '../utils/feathData'
+import { toast } from 'react-toastify';
+import { Bars } from 'react-loader-spinner';
 
 const codeTableHead = [
     "",
@@ -71,10 +73,17 @@ export const Trash = () => {
         </tr>
     )
 
-    const getDataTrtash = async () => {
+    const getCodeDataTrash = async () => {
         try {
             const resCode = await getData('sale/code/admin/trash')
             setCodeListBody(resCode.data)
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+    const getPromotionDataTrash = async () => {
+        try {
             const resPromotion = await getData('sale/promotion/admin/trash')
             setPromotionListBody(resPromotion.data)
         }
@@ -85,20 +94,55 @@ export const Trash = () => {
 
     const destroy = () => {
         if (isCode)
-            deleteData('sale/code/admin/destroy', { codeIds: listCodeSelected })
+            deleteData('sale/code/admin/destroy', { codeIds: listCodeSelected }).then(
+                res => {
+                    if (res.status === 200) {
+                        toast.success('Destroy success Code')
+                        getCodeDataTrash()
+                    } else
+                        toast.error("Can't destroy Code")
+                }
+            )
         else
-            deleteData('sale/promotion/admin/destroy', { promotionIds: listPromotionSelected })
+            deleteData('sale/promotion/admin/destroy', { promotionIds: listPromotionSelected }).then(
+                res => {
+                    if (res.status === 200) {
+                        toast.success('Destroy success Prmototion')
+                        getPromotionDataTrash()
+                    }
+                    else
+                        toast.error("Can't destroy Promotion")
+                }
+            )
 
     }
     const restore = () => {
         if (isCode)
-            patchData('sale/code/admin/restore', { codeIds: listCodeSelected })
+            patchData('sale/code/admin/restore', { codeIds: listCodeSelected }).then(
+                res => {
+                    if (res.success) {
+                        toast.success('Restore success Code')
+                        getCodeDataTrash()
+                    }
+                    else
+                        toast.error("Can't restore Code")
+                }
+            )
         else
-            patchData('sale/promotion/admin/restore', { promotionIds: listPromotionSelected })
+            patchData('sale/promotion/admin/restore', { promotionIds: listPromotionSelected }).then(
+                res => {
+                    if (res.success) {
+                        toast.success('Restore success Promotion')
+                        getPromotionDataTrash()
+                    } else
+                        toast.error("Can't restore Promotion")
+                }
+            )
     }
 
     useEffect(() => {
-        getDataTrtash()
+        getCodeDataTrash()
+        getPromotionDataTrash()
     }, []);
 
     return (
@@ -125,7 +169,7 @@ export const Trash = () => {
                                     renderHead={(item, index) => renderHead(item, index)}
                                     bodyData={codeListBody}
                                     renderBody={renderCodeBody}
-                                /> : ''
+                                /> : isCode ? <Bars/> : ''
                             }
                             {
                                 promotionListBody.length > 0 && !isCode ? <Table
@@ -134,7 +178,7 @@ export const Trash = () => {
                                     renderHead={(item, index) => renderHead(item, index)}
                                     bodyData={promotionListBody}
                                     renderBody={renderPromotionBody}
-                                /> : ''
+                                /> : !isCode ? <Bars/> : ''
                             }
 
                         </div>
