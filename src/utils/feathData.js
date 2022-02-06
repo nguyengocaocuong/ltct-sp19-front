@@ -22,12 +22,12 @@ export const putData = async (url, post) => {
   return data;
 };
 
-export const patchData = async (url, post, token) => {
+export const patchData = async (url, post) => {
+  console.log(post);
   const res = await fetch(`${apiUrl}/api/${url}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: token,
     },
     body: JSON.stringify(post),
   });
@@ -37,7 +37,8 @@ export const patchData = async (url, post, token) => {
 };
 
 export const deleteData = async (url, dt) => {
-  const res = await axios.delete(`${apiUrl}/api/${url}`, dt);
-  const data = await res.json();
-  return data;
+  const res = await axios.delete(`${apiUrl}/api/${url}`,{
+    data: dt
+  });
+  return res;
 };

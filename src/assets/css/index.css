@@ -185,7 +185,11 @@ input:focus {
 .footer-action {
   width: 100px;
   margin: auto;
-  background-color: transparent;
   align-items: center;
   display: flex;
+}
+.footer-action__btn {
+  display: inline-block;
+  background-color: transparent;
+  margin: 10px;
 }

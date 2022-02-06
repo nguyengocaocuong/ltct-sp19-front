@@ -14,17 +14,17 @@ const promotionTableHead = [
 const renderHead = (item, index) => <th key={index}>{item}</th>
 
 export const Promotion = () => {
-    let listSelected = []
+    const [listSelected, setListSelected] = useState([])
     const [isDisplay, setDisplay] = useState(false)
     const [promotionListBody, setPromotionListBody] = useState([])
 
     const handleChange = (id) => {
-        let firstLen = listSelected.length
-        for (let i = 0; i < listSelected.length; i++)
-            if (listSelected[i] === id)
-                listSelected.splice(i, 1)
-        if (listSelected.length === firstLen)
+        let index = listSelected.indexOf(id)
+        if(index >= 0)
+            listSelected.splice(index,1)
+        else
             listSelected.push(id)
+        setListSelected(listSelected)
         setDisplay(listSelected.length === 0 ? false : true)
     }
     const getPromotionList = async () => {
@@ -44,7 +44,7 @@ export const Promotion = () => {
     }, []);
     const renderBody = (item, index) => (
         <tr key={index}>
-            <td><input type="checkbox" onChange={(e) => handleChange(item.id)} /></td>
+            <td><input type="checkbox" onChange={(e) => handleChange(item._id)} /></td>
             <td>{item.name}</td>
             <td>{item.description}</td>
             <td>{item.discount.discountType === 1 ? item.discount.discountValue + '%' : new Intl.NumberFormat('en-IN').format(item.discount.discountValue) + "đ"}</td>

@@ -21,8 +21,7 @@ const renderHead = (item, index) => <th key={index}>{item}</th>
 export const Code = () => {
     const [isDisplay, setDisplay] = useState(false)
     const [codeListBody, setCodeListBody] = useState([])
-
-    let listSelected = []
+    const [listSelected, setListSelected] = useState([])
 
     const getCodeList = async () => {
         try {
@@ -38,18 +37,18 @@ export const Code = () => {
         deleteData('sale/code/admin/delete', { codeIds: listSelected })
     }
 
-    useEffect( () => {
+    useEffect(() => {
         getCodeList()
     }, [])
 
 
     const handleChange = (id) => {
-        let firstLen = listSelected.length
-        for (let i = 0; i < listSelected.length; i++)
-            if (listSelected[i] === id)
-                listSelected.splice(i, 1)
-        if (listSelected.length === firstLen)
+        let index = listSelected.indexOf(id)
+        if(index >= 0)
+            listSelected.splice(index,1)
+        else
             listSelected.push(id)
+        setListSelected(listSelected)
         setDisplay(listSelected.length === 0 ? false : true)
     }
 
