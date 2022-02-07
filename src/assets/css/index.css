@@ -13,11 +13,13 @@
   --second-bg-light: #fafafb;
   --txt-color-light: #455560;
   --box-shadow-light: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  --input-bg-light: #ffffff;
 
   --main-bg-dark: #2d2d2d;
   --second-bg-dark: #202020;
   --txt-color-dark: #bbbbbb;
   --box-shadow-dark: rgba(0, 0, 0, 0.2) 0px 5px 10px;
+  --input-bg-dark: #454545;
 
   --main-color-blue: #349eff;
   --second-color-blue: #62b4ff;

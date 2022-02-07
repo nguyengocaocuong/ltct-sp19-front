@@ -49,34 +49,36 @@ export const Code = () => {
   };
 
   const renderBody = (item, index) => (
-    <tr key={index}>
-      <td>
-        <input type="checkbox" onChange={(e) => handleChange(item._id)} />
-      </td>
-      <td>{item.name}</td>
-      <td>{item.description}</td>
-      <td>{item.count}</td>
-      <td>
-        {item.discount.discountType === 1
-          ? item.discount.discountValue + "%"
-          : new Intl.NumberFormat().format(item.discount.discountValue) + "đ"}
-      </td>
-      <td>
-        {item.discount.subConditions !== null ? "Max" : ""}{" "}
-        {new Intl.NumberFormat().format(item.discount.subConditions) + "đ"}
-      </td>
-      <td>
-        Min {new Intl.NumberFormat().format(item.condition.conditionValue)}{" "}
-        {item.condition.conditionType === 1 ? "đ" : "SP"}
-      </td>
-      <td>{item.discountCode}</td>
-      <td>
-        {item.isActived ? (
-          <Badge type="success" content="Actived" />
-        ) : (
-          <Badge type="warning" content="Non Active" />
-        )}
-      </td>
+    <tr>
+      <Link to={`/code/${item._id}`} key={index}>
+        <td>
+          <input type="checkbox" onChange={(e) => handleChange(item._id)} />
+        </td>
+        <td>{item.name}</td>
+        <td>{item.description}</td>
+        <td>{item.count}</td>
+        <td>
+          {item.discount.discountType === 1
+            ? item.discount.discountValue + "%"
+            : new Intl.NumberFormat().format(item.discount.discountValue) + "đ"}
+        </td>
+        <td>
+          {item.discount.subConditions !== null ? "Max" : ""}{" "}
+          {new Intl.NumberFormat().format(item.discount.subConditions) + "đ"}
+        </td>
+        <td>
+          Min {new Intl.NumberFormat().format(item.condition.conditionValue)}{" "}
+          {item.condition.conditionType === 1 ? "đ" : "SP"}
+        </td>
+        <td>{item.discountCode}</td>
+        <td>
+          {item.isActived ? (
+            <Badge type="success" content="Actived" />
+          ) : (
+            <Badge type="warning" content="Non Active" />
+          )}
+        </td>
+      </Link>
     </tr>
   );
   return (

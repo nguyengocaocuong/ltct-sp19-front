@@ -23,7 +23,6 @@ export const putData = async (url, post) => {
 };
 
 export const patchData = async (url, post) => {
-  console.log(post);
   const res = await fetch(`${apiUrl}/api/${url}`, {
     method: "PATCH",
     headers: {
@@ -37,8 +36,8 @@ export const patchData = async (url, post) => {
 };
 
 export const deleteData = async (url, dt) => {
-  const res = await axios.delete(`${apiUrl}/api/${url}`,{
-    data: dt
+  const res = await axios.delete(`${apiUrl}/api/${url}`, {
+    data: dt,
   });
   return res;
 };
