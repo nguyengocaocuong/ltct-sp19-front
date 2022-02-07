@@ -4,6 +4,11 @@ import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import "../assets/css/promotion.css";
 import { getData, patchData, postData } from "../utils/feathData";
+import { validatePromotion } from "../utils/validate";
+import { toast } from "react-toastify";
+import { Typeahead } from "react-bootstrap-typeahead";
+import "react-bootstrap-typeahead/css/Typeahead.css";
+import axios from "axios";
 
 export default function CreatePromotionPage() {
   const initialState = {
@@ -12,20 +17,16 @@ export default function CreatePromotionPage() {
     discountType: "1",
     discountValue: null,
     applyProductType: "1",
-    applyProductId: [],
-    isActived: false,
   };
 
+  const [categories, setCategories] = useState([]);
+
+  const [products, setProducts] = useState([]);
+  const [applyProductId, setApplyProductId] = useState([]);
+  const [isActived, setIsActived] = useState(false);
   const [promotion, setPromotion] = useState(initialState);
-  const {
-    name,
-    description,
-    discountType,
-    discountValue,
-    applyProductType,
-    applyProductId,
-    isActived,
-  } = promotion;
+  const { name, description, discountType, discountValue, applyProductType } =
+    promotion;
 
   const { id } = useParams();
   const history = useHistory();
@@ -43,50 +44,102 @@ export default function CreatePromotionPage() {
           discountType: String(data.discount.discountType),
           discountValue: data.discount.discountValue,
           applyProductType: String(data.applyProduct.applyProductType),
-          applyProductId: "",
-          isActived: data.isActived,
         });
+        setIsActived(data.isActived);
+        setApplyProductId([...data.applyProduct.applyProductId]);
       });
     } else {
       setOnEdit(false);
       setPromotion(initialState);
     }
   }, [id]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const { data } = await axios.get(
+        "https://team-product-api.herokuapp.com/api/categories"
+      );
+
+      const options = data.data.map((i) => ({
+        name: i.name,
+        id: i.id,
+      }));
+      setCategories(options);
+    };
+    getData();
+  }, []);
+  useEffect(() => {
+    const getData = async () => {
+      const { data } = await axios.get(
+        "https://team-product-api.herokuapp.com/api/products/"
+      );
+
+      const options = data.data.map((i) => ({
+        name: i.name,
+        id: i.id,
+      }));
+      setProducts(options);
+    };
+    getData();
+  }, []);
+
+  console.log(products);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPromotion({ ...promotion, [name]: value });
   };
 
+  const handleChangeActive = () => {
+    setIsActived(!isActived);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(promotion);
-    if (onEdit) {
-      const res = await patchData("sale/promotion/admin/edit", {
-        id: id,
-        name,
-        description,
-        discountType: Number(discountType),
-        discountValue: Number(discountValue),
-        applyProductType: Number(applyProductType),
-        applyProductId: [2, 5],
-        isActived,
-      });
+    const status = validatePromotion(promotion);
+    if (status === 1) {
+      if (onEdit) {
+        const res = await patchData("sale/promotion/admin/edit", {
+          id: id,
+          name,
+          description,
+          discountType: Number(discountType),
+          discountValue: Number(discountValue),
+          applyProductType: Number(applyProductType),
+          applyProductId: [2, 5],
+          isActived,
+        });
 
-      console.log("res", res);
+        if (res.success) {
+          toast.success(res.success);
+          history.push("/promotion");
+        }
+
+        if (res.error) {
+          toast.error(res.error);
+        }
+      } else {
+        const res = await postData("sale/promotion/admin/create", {
+          name,
+          description,
+          discountType: Number(discountType),
+          discountValue: Number(discountValue),
+          applyProductType: Number(applyProductType),
+          applyProductId: [2, 5],
+          isActived,
+        });
+
+        if (res.success) {
+          toast.success(res.success);
+          history.push("/promotion");
+        }
+
+        if (res.error) {
+          toast.error(res.error);
+        }
+      }
     } else {
-      const res = await postData("sale/promotion/admin/create", {
-        name,
-        description,
-        discountType: Number(discountType),
-        discountValue: Number(discountValue),
-        applyProductType: Number(applyProductType),
-        applyProductId: [2, 5],
-        isActived,
-      });
-      console.log(res);
+      toast.error(status);
     }
-
-    history.push("/promotion");
   };
   return (
     <>
@@ -171,24 +224,28 @@ export default function CreatePromotionPage() {
                       {applyProductType === "1" && (
                         <>
                           <p>Category</p>
-                          <input
-                            type="text"
-                            name="applyProductId"
-                            value={applyProductId}
-                            onChange={handleChange}
-                          ></input>
+                          <Typeahead
+                            id="basic-example"
+                            onChange={setApplyProductId}
+                            multiple
+                            options={categories}
+                            placeholder="Choose a state..."
+                            selected={applyProductId}
+                          />
                         </>
                       )}
 
                       {applyProductType === "2" && (
                         <>
                           <p>Product</p>
-                          <input
-                            type="text"
-                            name="applyProductId"
-                            value={applyProductId}
-                            onChange={handleChange}
-                          ></input>
+                          <Typeahead
+                            id="basic-example"
+                            onChange={setApplyProductId}
+                            multiple
+                            options={products}
+                            placeholder="Choose a state..."
+                            selected={applyProductId}
+                          />
                         </>
                       )}
                     </div>
@@ -209,9 +266,8 @@ export default function CreatePromotionPage() {
                       <input
                         type="checkbox"
                         name="isActived"
-                        value={isActived}
                         checked={isActived}
-                        onChange={handleChange}
+                        onChange={handleChangeActive}
                       ></input>
                     </div>
                   </div>

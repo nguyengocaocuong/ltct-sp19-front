@@ -5,6 +5,8 @@ import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import "../assets/css/promotion.css";
 import { getData, patchData, postData } from "../utils/feathData";
+import { toast } from "react-toastify";
+import { validateCode } from "../utils/validate";
 export default function CreateCodePage() {
   const initialState = {
     name: "",
@@ -12,12 +14,13 @@ export default function CreateCodePage() {
     count: 9999,
     discountType: "1",
     discountValue: null,
-    subConditions: null,
     conditionType: "1",
     conditionValue: null,
     discountCode: "",
-    isActived: false,
   };
+
+  const [subConditions, setSubConditions] = useState(-1);
+  const [isActived, setIsActived] = useState(false);
   const [code, setCode] = useState(initialState);
   const {
     name,
@@ -25,11 +28,9 @@ export default function CreateCodePage() {
     count,
     discountType,
     discountValue,
-    subConditions,
     conditionType,
     conditionValue,
     discountCode,
-    isActived,
   } = code;
 
   const { id } = useParams();
@@ -41,19 +42,19 @@ export default function CreateCodePage() {
       setOnEdit(true);
       getData(`sale/code/admin/${id}`).then((res) => {
         const { data } = res;
-        //console.log(data);
+        console.log(data);
         setCode({
           name: data.name,
           description: data.description,
           count: data.count,
           discountValue: data.discount.discountValue,
-          subConditions: data.discount.subConditions,
           conditionValue: data.condition.conditionValue,
           discountCode: data.discountCode,
-          isActived: data.isActived,
           discountType: String(data.discount.discountType),
           conditionType: String(data.condition.conditionType),
         });
+        setIsActived(data.isActived);
+        setSubConditions(data.discount.subConditions);
       });
     } else {
       setOnEdit(false);
@@ -61,61 +62,80 @@ export default function CreateCodePage() {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (discountType === "2") {
+      setSubConditions(-1);
+    }
+  }, [discountType]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCode({ ...code, [name]: value });
   };
 
+  const handleChangeActive = () => {
+    setIsActived(!isActived);
+  };
+
+  const handleChangeSubCondition = (e) => {
+    setSubConditions(e.target.value);
+  };
   //console.log("code", code);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log({
-    //   name,
-    //   description,
-    //   count: typeof count === "number" ? count : Number(count),
-    //   discountType: Number(discountType),
-    //   discountValue: Number(discountValue),
-    //   subConditions: subConditions === null ? null : Number(subConditions),
-    //   conditionType: Number(conditionType),
-    //   conditionValue: Number(conditionValue),
-    //   discountCode,
-    //   isActived,
-    // });
+    const status = validateCode(code);
+    if (status === 1) {
+      if (onEdit) {
+        console.log(code);
+        const res = await patchData("sale/code/admin/edit", {
+          id: id,
+          name,
+          description,
+          count: typeof count === "number" ? count : Number(count),
+          discountType: Number(discountType),
+          discountValue: Number(discountValue),
+          subConditions: Number(subConditions),
+          conditionType: Number(conditionType),
+          conditionValue: Number(conditionValue),
+          discountCode,
+          isActived,
+        });
 
-    if (onEdit) {
-      const res = await patchData("sale/code/admin/edit", {
-        id: id,
-        name,
-        description,
-        count: typeof count === "number" ? count : Number(count),
-        discountType: Number(discountType),
-        discountValue: Number(discountValue),
-        subConditions: subConditions === null ? null : Number(subConditions),
-        conditionType: Number(conditionType),
-        conditionValue: Number(conditionValue),
-        discountCode,
-        isActived,
-      });
+        if (res.success) {
+          toast.success(res.success);
+          history.push("/code");
+        }
 
-      console.log("res", res);
+        if (res.error) {
+          toast.error(res.error);
+        }
+      } else {
+        const res = await postData("sale/code/admin/create", {
+          name,
+          description,
+          count: typeof count === "number" ? count : Number(count),
+          discountType: Number(discountType),
+          discountValue: Number(discountValue),
+          subConditions: Number(subConditions),
+          conditionType: Number(conditionType),
+          conditionValue: Number(conditionValue),
+          discountCode,
+          isActived,
+        });
+
+        if (res.success) {
+          toast.success(res.success);
+          history.push("/code");
+        }
+
+        if (res.error) {
+          toast.error(res.error);
+        }
+      }
     } else {
-      const res = await postData("sale/code/admin/create", {
-        name,
-        description,
-        count: typeof count === "number" ? count : Number(count),
-        discountType: Number(discountType),
-        discountValue: Number(discountValue),
-        subConditions: subConditions === null ? null : Number(subConditions),
-        conditionType: Number(conditionType),
-        conditionValue: Number(conditionValue),
-        discountCode,
-        isActived,
-      });
-      console.log(res);
+      toast.error(status);
     }
-
-    history.push("/code");
   };
 
   return (
@@ -190,7 +210,7 @@ export default function CreateCodePage() {
                               name="subConditions"
                               type="number"
                               value={subConditions}
-                              onChange={handleChange}
+                              onChange={handleChangeSubCondition}
                             ></input>
                           </div>
                         </div>
@@ -240,8 +260,7 @@ export default function CreateCodePage() {
                         type="checkbox"
                         name="isActived"
                         checked={isActived}
-                        value={isActived}
-                        onChange={handleChange}
+                        onChange={handleChangeActive}
                       ></input>
                     </div>
                   </div>
