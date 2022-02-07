@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Bars } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
 import Badge from '../components/badge/Badge'
@@ -57,15 +58,6 @@ export const Code = () => {
     setDisplay(listSelected.length === 0 ? false : true);
   }
 
-  const handleChange = (id) => {
-    let index = listSelected.indexOf(id)
-    if (index >= 0)
-      listSelected.splice(index, 1)
-    else
-      listSelected.push(id)
-    setListSelected(listSelected)
-    setDisplay(listSelected.length === 0 ? false : true)
-  }
 
   const renderBody = (item, index) => (
     <tr key={index}>

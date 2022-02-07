@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Bars } from 'react-loader-spinner'
+import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Badge from '../components/badge/Badge'
 import Table from '../components/table/Table'
@@ -48,9 +49,6 @@ export const Promotion = () => {
       }
     )
   }
-  const deletePromotion = () => {
-    deleteData("sale/promotion/admin/delete", { promotionIds: listSelected });
-  };
 
   useEffect(() => {
     getPromotionList()
