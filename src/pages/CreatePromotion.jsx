@@ -6,8 +6,7 @@ import "../assets/css/promotion.css";
 import { getData, patchData, postData } from "../utils/feathData";
 import { validatePromotion } from "../utils/validate";
 import { toast } from "react-toastify";
-import { Typeahead } from "react-bootstrap-typeahead";
-import "react-bootstrap-typeahead/css/Typeahead.css";
+import { Autocomplete, TextField } from "@mui/material";
 import axios from "axios";
 
 export default function CreatePromotionPage() {
@@ -33,28 +32,6 @@ export default function CreatePromotionPage() {
   const [onEdit, setOnEdit] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      setOnEdit(true);
-      getData(`sale/promotion/admin/${id}`).then((res) => {
-        const { data } = res;
-        //console.log(data);
-        setPromotion({
-          name: data.name,
-          description: data.description,
-          discountType: String(data.discount.discountType),
-          discountValue: data.discount.discountValue,
-          applyProductType: String(data.applyProduct.applyProductType),
-        });
-        setIsActived(data.isActived);
-        setApplyProductId([...data.applyProduct.applyProductId]);
-      });
-    } else {
-      setOnEdit(false);
-      setPromotion(initialState);
-    }
-  }, [id]);
-
-  useEffect(() => {
     const getData = async () => {
       const { data } = await axios.get(
         "https://team-product-api.herokuapp.com/api/categories"
@@ -71,7 +48,7 @@ export default function CreatePromotionPage() {
   useEffect(() => {
     const getData = async () => {
       const { data } = await axios.get(
-        "https://team-product-api.herokuapp.com/api/products/"
+        "https://team-product-api.herokuapp.com/api/products"
       );
 
       const options = data.data.map((i) => ({
@@ -83,7 +60,43 @@ export default function CreatePromotionPage() {
     getData();
   }, []);
 
-  console.log(products);
+  useEffect(() => {
+    if (id) {
+      setOnEdit(true);
+      getData(`sale/promotion/admin/${id}`).then((res) => {
+        const { data } = res;
+
+        setPromotion({
+          name: data.name,
+          description: data.description,
+          discountType: String(data.discount.discountType),
+          discountValue: data.discount.discountValue,
+          applyProductType: String(data.applyProduct.applyProductType),
+        });
+        setIsActived(data.isActived);
+
+        let items =
+          data.applyProduct.applyProductType === 1
+            ? categories.filter((item) =>
+                data.applyProduct.applyProductId.indexOf(item.id) < 0
+                  ? false
+                  : true
+              )
+            : products.filter((item) =>
+                data.applyProduct.applyProductId.indexOf(item.id) < 0
+                  ? false
+                  : true
+              );
+
+        console.log(items);
+        setApplyProductId([...items]);
+      });
+    } else {
+      setOnEdit(false);
+      setPromotion(initialState);
+    }
+  }, [id, products, categories]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPromotion({ ...promotion, [name]: value });
@@ -95,7 +108,7 @@ export default function CreatePromotionPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const status = validatePromotion(promotion);
+    const status = validatePromotion(promotion, applyProductId);
     if (status === 1) {
       if (onEdit) {
         const res = await patchData("sale/promotion/admin/edit", {
@@ -105,7 +118,7 @@ export default function CreatePromotionPage() {
           discountType: Number(discountType),
           discountValue: Number(discountValue),
           applyProductType: Number(applyProductType),
-          applyProductId: [2, 5],
+          applyProductId: applyProductId.map((item) => item.id),
           isActived,
         });
 
@@ -124,7 +137,7 @@ export default function CreatePromotionPage() {
           discountType: Number(discountType),
           discountValue: Number(discountValue),
           applyProductType: Number(applyProductType),
-          applyProductId: [2, 5],
+          applyProductId: applyProductId.map((item) => item.id),
           isActived,
         });
 
@@ -141,6 +154,7 @@ export default function CreatePromotionPage() {
       toast.error(status);
     }
   };
+
   return (
     <>
       <div className="top-header">
@@ -207,6 +221,27 @@ export default function CreatePromotionPage() {
                   </div>
                   <div className="col-5">
                     <div className="form-group">
+                      <p style={{ display: "inline-block" }}>
+                        Kích hoạt chương trình
+                      </p>
+                      <input
+                        type="checkbox"
+                        name="isActived"
+                        checked={isActived}
+                        onChange={handleChangeActive}
+                      ></input>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card">
+              <div className="card__body">
+                <div className="row">
+                  <div className="col-12">
+                    <div className="form-group">
                       <p>Áp dụng cho</p>
                       <select
                         name="applyProductType"
@@ -219,18 +254,25 @@ export default function CreatePromotionPage() {
                       </select>
                     </div>
                   </div>
-                  <div className="col-7">
+                  <div className="col-12">
                     <div className="form-group">
                       {applyProductType === "1" && (
                         <>
                           <p>Category</p>
-                          <Typeahead
-                            id="basic-example"
-                            onChange={setApplyProductId}
+                          <Autocomplete
                             multiple
                             options={categories}
-                            placeholder="Choose a state..."
-                            selected={applyProductId}
+                            onChange={(event, value) =>
+                              setApplyProductId(value)
+                            }
+                            value={applyProductId}
+                            getOptionLabel={(option) => option.name}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                placeholder="Please chose categories"
+                              />
+                            )}
                           />
                         </>
                       )}
@@ -238,37 +280,23 @@ export default function CreatePromotionPage() {
                       {applyProductType === "2" && (
                         <>
                           <p>Product</p>
-                          <Typeahead
-                            id="basic-example"
-                            onChange={setApplyProductId}
+                          <Autocomplete
                             multiple
                             options={products}
-                            placeholder="Choose a state..."
-                            selected={applyProductId}
+                            getOptionLabel={(option) => option.name}
+                            onChange={(event, value) =>
+                              setApplyProductId(value)
+                            }
+                            value={applyProductId}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                placeholder="Please chose products"
+                              />
+                            )}
                           />
                         </>
                       )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="row">
-              <div className="col-12">
-                <div className="card">
-                  <div className="card__body">
-                    <div className="form-group">
-                      <p style={{ display: "inline-block" }}>
-                        Kích hoạt chương trình
-                      </p>
-                      <input
-                        type="checkbox"
-                        name="isActived"
-                        checked={isActived}
-                        onChange={handleChangeActive}
-                      ></input>
                     </div>
                   </div>
                 </div>

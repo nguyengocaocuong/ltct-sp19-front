@@ -10,6 +10,7 @@ const promotionTableHead = [
   "Name",
   "Discount Type",
   "Discount Value",
+  "Apply Type",
   "Active",
 ];
 const renderHead = (item, index) => <th key={index}>{item}</th>;
@@ -66,6 +67,11 @@ export const Promotion = () => {
           ? item.discount.discountValue + "%"
           : new Intl.NumberFormat("en-IN").format(item.discount.discountValue) +
             "đ"}
+      </td>
+
+      <td>
+        {item.applyProduct.applyProductType === 1 && "Categories"}
+        {item.applyProduct.applyProductType === 2 && "Products"}
       </td>
 
       <td>
