@@ -88,7 +88,6 @@ export default function CreatePromotionPage() {
                   : true
               );
 
-        console.log(items);
         setApplyProductId([...items]);
       });
     } else {

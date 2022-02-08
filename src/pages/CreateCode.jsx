@@ -42,7 +42,6 @@ export default function CreateCodePage() {
       setOnEdit(true);
       getData(`sale/code/admin/${id}`).then((res) => {
         const { data } = res;
-        console.log(data);
         setCode({
           name: data.name,
           description: data.description,
@@ -80,14 +79,12 @@ export default function CreateCodePage() {
   const handleChangeSubCondition = (e) => {
     setSubConditions(e.target.value);
   };
-  //console.log("code", code);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const status = validateCode(code);
     if (status === 1) {
       if (onEdit) {
-        console.log(code);
         const res = await patchData("sale/code/admin/edit", {
           id: id,
           name,

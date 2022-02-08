@@ -28,7 +28,7 @@ export const Code = () => {
       const codes = await getData("sale/code/admin");
       setCodeListBody(codes.data);
     } catch (err) {
-      console.log(err);
+      toast.error(err);
     }
   };
 

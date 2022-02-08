@@ -32,7 +32,7 @@ export const Promotion = () => {
       const promotions = await getData("sale/promotion/admin");
       setPromotionListBody(promotions.data);
     } catch (err) {
-      console.log(err);
+      toast.error(err);
     }
   };
   const deletePromotion = () => {
